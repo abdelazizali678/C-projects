@@ -1,0 +1,361 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+typedef struct patient_info    // STRUCT TO STORE PATIENT INFORMATION
+{
+    char name [30] ;
+	struct patient_info *next ;
+	char gender [7];
+    int age;
+    int ID;
+}patient_info;
+
+patient_info * head1 = NULL ;
+int time_slots[5] = {-1 , -1 , -1 , -1 , -1 };
+
+void add_patient ();
+void edit_patient ();
+void reserve ();
+void cancel_reserv();
+void display_record(int patient_ID);
+void display_reserv();
+
+void main()
+{
+
+    char mode ;                 // Selecting using mode
+    int pass = 1234;            //default password
+    int adminpass ;             //entered password from user
+
+	while (1)
+	{
+		printf("WELCOME\nPlease select using mode\nFor Admins press A\nFor Users press U\n");
+    scanf("%c", &mode);
+    switch (mode)               //selecting admin or user mode
+    {
+			case 'A':
+            printf("Please Enter password\n");    //asking user for password to login
+            scanf("%d",&adminpass);
+            int trials = 1;
+            while (adminpass != pass && trials != 3)
+            {
+                    printf ("Wrong password! Enter another one: ");
+                    scanf("%d",&adminpass);
+                    trials++; //3
+
+            }
+
+               if (adminpass != pass)
+               {
+                exit (0);
+               }
+                printf("Welcome Admin\n");
+                printf("Please select the feature you need using pressing its number \n");    //selecting between the features
+                printf("1 - Add new patient record\n");
+                printf("2 - Edit patient record\n");
+                printf("3 - Reserve a slot with the doctor\n");
+                printf("4 - Cancel reservation\n");
+				int selected_feature ; // integer variable to switch to the feature
+                scanf("%d" , &selected_feature);
+                switch (selected_feature)
+                {
+                case 1:
+				add_patient ();
+                break;
+
+                case 2:
+				edit_patient ();
+                break;
+
+                case 3:
+				reserve ();
+                break;
+
+                case 4:
+				cancel_reserv();
+                break;
+				}
+			break;
+			case 'U':
+			printf ("1. View Patient's Record.\n2. View Today's Reservations\n");
+			int choice;
+			scanf ("%d", &choice);
+			int idNumber;
+			switch (choice)
+			{
+				case 1:
+				printf ("Enter the ID you are searching for: ");
+				scanf ("%d", &idNumber);
+				display_record(idNumber);
+				break;
+				case 2:
+				display_reserv();
+				break;
+			}
+			break;
+	}
+	}
+}
+
+void add_patient ()
+{
+       {
+        patient_info *new = (patient_info *) malloc ( sizeof (patient_info) );
+		printf("Enter the patient name \n");
+        scanf(" %[^\n]%*c", new -> name );
+		printf("Enter the patient age \n");
+		scanf("%d", &new -> age);
+		printf("Enter the patient gender \n");
+		scanf("%s", new -> gender );
+		printf("Enter the patient ID \n");
+		scanf("%d", &new -> ID );
+		int id = new -> ID ;
+		patient_info *current = head1;
+
+		//Loop to check if the ID already exists
+		while( current != NULL )
+			{
+				if ( id == current -> ID)
+				{
+					printf("This Id is used , try enter data again\n");
+					free(new);
+					return;
+				}
+				current = current -> next;
+			}
+
+		new -> next = NULL;
+
+		if (head1 == NULL)
+		{
+			head1 = new;
+			return;
+		}
+
+		current = head1;
+
+		while (current -> next != NULL)
+		{
+			current = current -> next;
+		}
+
+		current -> next = new;
+
+		printf("You added a new patient to your list \n\n");
+
+}
+
+}
+
+
+void edit_patient ()
+{
+	int value , found = 0  ;
+
+		printf("Enter the patient ID \n");
+		scanf("%d", &value);
+		patient_info *current = head1;
+
+	while(current != NULL)
+		{
+			if (value == current -> ID)
+			{
+				found = 1 ;
+				break ;
+			}
+			else
+			{
+				current = current -> next ;
+			}
+		}
+
+			if (found)
+			{
+				printf("Enter the new patient name \n");
+				 scanf(" %[^\n]%*c", current -> name );
+				printf("Enter the new patient age \n");
+				scanf("%d", &current -> age);
+				printf("Enter the new patient gender \n");
+				scanf("%s",current -> gender);
+				printf("Enter the new patient ID\n");
+				scanf("%d", &current -> ID);
+				printf("you have updated the patient information \n");
+			}
+			else
+			{
+				printf("This ID isn't existed \n");
+				return;
+			}
+}
+
+void reserve ()
+{
+	for(int i = 1 ; i <= 5 ; i++)
+		{
+			switch(i)
+			{
+				case 1: if(time_slots[0] == -1 ) printf("1- 2pm to 2:30pm\n");
+							break ;
+				case 2: if(time_slots[1] == -1 ) printf("2- 2:30pm to 3pm\n");
+							 break ;
+				case 3: if(time_slots[2] == -1 ) printf("3- 3pm to 3:30pm\n");
+							 break ;
+				case 4: if(time_slots[3] == -1 ) printf("4- 4pm to 4:30pm\n");
+							 break ;
+				case 5: if(time_slots[4] == -1 ) printf("5- 4:30pm to 5:pm\n");
+							 break ;
+			}
+		}
+
+		int choice  , id  , found = 0 ;
+		patient_info  *current = head1 ;
+		printf("choose a time (enter a number)\n");
+		scanf("%d", &choice );
+		printf("Enter the patient ID \n");
+		scanf("%d", &id );
+		while ( current != NULL)
+		{
+			if (current -> ID == id )
+			{
+				time_slots[choice-1] = id ;
+				found = 1 ;
+				return ;
+			}
+
+				current = current -> next ;
+
+		}
+
+		if (!found)
+			printf(" the ID isn't existed \n\n");
+}
+
+void cancel_reserv()
+{
+	int flage = 0 , id  ;
+	patient_info *current = head1 ;
+	printf("Enter the patient ID \n");
+	scanf("%d", &id);
+	int i = 0 ;
+	while ( current != NULL)
+	{
+		if (id == current -> ID)
+		{
+			for(int i=0 ; i<5 ; i++)
+			{
+				if ( id == time_slots[i] )
+				{
+					flage = 1 ;
+					time_slots[i] = -1 ;
+					printf("You have canceled %s's reservation \n", current -> name);
+					break ;
+				}
+			}
+					break ;
+		}
+
+					current = current -> next ;
+	}
+
+	if (!flage)
+		printf("the ID isn't existed or didn't makes a reservation  \n");
+}
+
+void display_slots()
+{
+		for(int i = 1 ; i <= 5 ; i++)
+		{
+			switch(i)
+			{
+				case 1: if(time_slots[0] == -1 ) printf("1- 2pm to 2:30pm\n");
+							break ;
+				case 2: if(time_slots[1] == -1 ) printf("2- 2:30pm to 3pm\n");
+							 break ;
+				case 3: if(time_slots[2] == -1 ) printf("3- 3pm to 3:30pm\n");
+							 break ;
+				case 4: if(time_slots[3] == -1 ) printf("4- 4pm to 4:30pm\n");
+							 break ;
+				case 5: if(time_slots[4] == -1 ) printf("5- 4:30pm to 5:pm\n");
+							 break ;
+			}
+		}
+
+		int choice  , id  , found = 0 ;
+		patient_info  *current = head1 ;
+		printf("choose a time (enter a number)\n");
+		scanf("%d", &choice );
+		printf("Enter the patient ID \n");
+		scanf("%d", &id );
+		while ( current != NULL)
+		{
+			if (current -> ID == id )
+			{
+				time_slots[choice-1] = id ;
+				found = 1 ;
+				return ;
+			}
+
+				current = current -> next ;
+
+		}
+
+		if (!found)
+			printf(" the ID isn't existed \n\n");
+}
+
+
+
+void display_record(int patient_ID)
+{
+	patient_info *current = head1 ;
+	int found = 0 ;
+	while (current != NULL)
+	{
+		if (patient_ID == current -> ID)
+		{
+			found = 1 ;
+			printf("\npatient's name: %s\n", current -> name);
+			printf("patient's age: %d\n", current -> age );
+			printf("patient's gender: %s\n", current -> gender);
+			printf("patient's ID: %d\n", current -> ID );
+			break;
+		}
+		current = current -> next ;
+	}
+	if (!found)
+	{
+		printf("This ID isn't existed \n");
+	}
+}
+void display_reserv()
+{
+
+		for(int i = 1 ; i <= 5 ; i++)
+		{
+
+			switch(i)
+			{
+				case 1: if(time_slots[0] == -1 ) break ;
+
+                            else printf("1-2pm to 2:30pm is booked by patient (ID) %d\n", time_slots[0] );
+
+				case 2: if(time_slots[1] == -1 ) break ;
+
+                            else printf("2-2:30pm to 3pm is booked by patient (ID) %d\n", time_slots[1] );
+
+				case 3: if(time_slots[2] == -1 ) break ;
+
+                            else printf("3-3pm to 3:30pm is booked by patient (ID) %d\n", time_slots[2] );
+
+				case 4: if(time_slots[3] == -1 ) break ;
+
+                            else printf("4-4pm to 4:30pm is booked by patient (ID) %d\n", time_slots[3] );
+
+				case 5: if(time_slots[4] == -1 ) break ;
+
+                            else printf("1-4:30pm to 5pm is booked by patient (ID) %d\n", time_slots[4] );
+
+			}
+		}
+}
